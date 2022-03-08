@@ -8,57 +8,75 @@
 
 import Interp
 import Ast
+import Data.List
 
-%access public export
+%default partial
 
+public export
 p : Term
 p = Comp "p" []
 
+public export
 q : Term
 q = Comp "q" []
 
+public export
 x : Term
 x = Comp "x" []
 
+public export
 z : Term
 z = Comp "z" []
 
+public export
 r : Term -> Term
 r x = Comp "r" [x]
 
+public export
 n : Term -> Term
 n x = Comp "n" [x]
 
+public export
 X : Term
 X = Var "X"
 
+public export
 s : Term -> Term
 s x = Comp "s" [x]
 
+public export
 f : Term -> Term -> Term
 f x y = Comp "f" [x, y]
 
+public export
+%hint
 program : Program
-program = [ p .
-          , q :- [p]
-	  , (n z) .
-	  , (n (s X)) :- [n X]
-	  , (f z z) .
-	  , (f z (s z)) .
-	  , (f X X) .
-	  ]
+program = unDSL
+  [ p
+    , q :- [p]
+    , (n z)
+    , (n (s X)) :- [n X]
+    , (f z z)
+    , (f z (s z))
+    , (f X X)
+  ]
 
+public export
 result : List Solution
 result = nub $ bfs $ makeReportTree program [f z X]
 
 -- Note: I should make this more type-safe.
+public export
 getSolutions : List Solution -> List Term
 getSolutions xs = concat $ map getSolution xs
-  where getSolution (MkSolution x) = map snd x
+  where getSolution : Solution -> List Term
+        getSolution (MkSolution x) = map snd x
 
+public export
 f_val : Term -> List Term
 f_val x = getSolutions $ nub $ bfs $ makeReportTree program [f x X]
 
+public export
 nat : Term -> Bool
 nat t = query /= []
   where query : List Solution
@@ -66,6 +84,7 @@ nat t = query /= []
 
 -- This is a version of f_val that runs on our embedded prolog
 -- system, but only allows values of type Nat.
+public export
 f_val' : (x : Term) -> {auto p : True = nat x} -> List Term
 f_val' x = getSolutions $ ?- f x X
 

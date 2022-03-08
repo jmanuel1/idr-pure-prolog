@@ -3,19 +3,23 @@ module Main
 import Interp
 import Ast
 import Examples
+import Data.List
+
+%default partial
 
 program2 : Program
-program2 = [ (s z) .
-           , (s (s z)) .
-	   ]
+program2 = unDSL
+  [ (s z)
+  , (s (s z))
+  ]
 
 -- Some tests
 main : IO ()
 main = do
   putStrLn "\n--------------"
-  print $ (nub $ dfs $ makeReportTree [(n z) .] [n X])
+  print $ (nub $ dfs $ makeReportTree (unDSL [(n z)]) [n X])
   putStrLn "\n---------------"
-  print $ (nub $ bfs $ makeReportTree [(n z) .] [n X])
+  print $ (nub $ bfs $ makeReportTree (unDSL [(n z)]) [n X])
   putStrLn "\n---------------"
   -- Why does this one get [True, True]? It matches twice?
   print $ (nub $ bfs $ makeReportTree program2 [s X])

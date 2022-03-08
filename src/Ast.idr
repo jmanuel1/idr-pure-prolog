@@ -8,49 +8,61 @@
 
 module Ast
 
-%access public export
+import Data.List
 
 ----------------------------------------------------------------------
 -- Abstract Syntax Tree
 ----------------------------------------------------------------------
 
+public export
 Atom : Type
 Atom = String
 
+public export
 Variable : Type
 Variable = String
 
+public export
 data Term : Type where
  Var : Variable -> Term
- Comp : Atom -> List Term -> Term
+ Comp : Atom -> (args: List Term) -> Term
 
-and' : List Bool -> Bool
-and' [] = True
-and' xs = foldr1 p xs
-  where p True True = True
-        p x y = False
+public export
+and' : (l : List Bool) -> Bool
+and' xs = foldr p True xs
+  where
+    p : Bool -> Bool -> Bool
+    p True True = True
+    p x y = False
 
+public export
 implementation Eq Term where
   (Var x) == (Var y) = assert_total $ x == y
-  (Comp x y) == (Comp x' y') = assert_total $ (x == x') && (and' $ Prelude.List.zipWith (==) y y')
+  (Comp x y) == (Comp x' y') = assert_total $ (x == x') && (and' $ zipWith (==) y y')
   x == y = assert_total $ False
 
+public export
 implementation Show Term where
   show (Var s) = s
   show (Comp s []) = s
-  show (Comp s xs) = s ++ "(" ++ (concat $ intersperse "," (map show xs)) ++ ")"
+  show (Comp s xs) = s ++ "(" ++ (concat $ intersperse "," (map (\x => show (assert_smaller xs x)) xs)) ++ ")"
 
+public export
 Terms : Type
 Terms = List Term
 
+public export
 Clause : Type
 Clause = (Term, Terms) -- head and body
 
+public export
 Clauses : Type
 Clauses = List Clause
 
+public export
 Goal : Type
 Goal = List Term
 
+public export
 Program : Type
 Program = Clauses
