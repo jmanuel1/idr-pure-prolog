@@ -49,7 +49,7 @@ mutual
   unify t (Var "_")                         = pure []
   unify (Var x) (Var y) with (x == y)
      unify (Var x) (Var y) | True           = pure []
-     _ | False = Nothing
+     _ | False = pure [(x, Var y)]
   unify (Var x) t with (not (x `occursIn` t))
       unify (Var x) t   | True              = pure [(x, t)]
       _ | False = Nothing
